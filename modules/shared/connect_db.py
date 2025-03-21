@@ -8,6 +8,7 @@ load_dotenv()
 class Db_connection():
     def __init__(self):
         pass
+
     def get_db_connection(self):
         try:
             conn = psycopg2.connect(
@@ -25,11 +26,10 @@ class Db_connection():
         
 
     def database_connection(self):
-         
-        conn = self.Db_connection.get_db_connection()
-
-        if not conn:
-            return {"error": "Database connection failed"}
+        try:
+            conn = self.Db_connection.get_db_connection()
+        except Exception as e:
+            return {"error": f"Database connection failed: {str(e)}"}
         
         return True
     

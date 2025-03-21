@@ -2,6 +2,7 @@ from ..shared.connect_db import Db_connection
 from .basic_recommender import Basic_recommender
 from .ai_recommender import MLRecommender
 
+db_conn = Db_connection()
 
 
 class Post_management():
@@ -10,12 +11,14 @@ class Post_management():
         pass
 
     def get_post(self):
-        conn = Db_connection.get_db_connection()
-        if not conn:
-            return {"error": "Database connection failed"}
-        
         try:
+            conn = db_conn.get_db_connection()
+        except Exception as e:
+            return {"error": f"Database connection failed: {str(e)}"}
 
+        cursor = None  # Initialize cursor to None
+
+        try:
             cursor = conn.cursor()
 
             query = """
@@ -33,12 +36,15 @@ class Post_management():
             posts = [dict(row) for row in rows]
 
             return posts
+
         except Exception as e:
             return {"error": f"Query failed: {str(e)}"}
-        
+
         finally:
-            cursor.close()
-            conn.close()
+            if cursor is not None:  # Check if cursor exists
+                cursor.close()
+            if conn is not None:
+                conn.close()
 
     def basic_post_recommendation(self, keywords, max_result):
         posts = self.get_post()
